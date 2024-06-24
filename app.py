@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import os
 
 # Function to generate and save violin plots
-def generate_plots(df, output_dir):
+def generate_plots(df, output_dir, color_map):
     data_columns = df.columns[1:]  # Assuming columns B to Y are the data columns
     species_names = df['species'].unique()
 
@@ -22,7 +22,9 @@ def generate_plots(df, output_dir):
                     y=metal_data,
                     name=species,
                     box_visible=True,
-                    meanline_visible=True
+                    meanline_visible=True,
+                    line_color=color_map.get(species, 'black'),  # Apply color from the color map
+                    fillcolor=color_map.get(species, 'black')  # Apply fill color from the color map
                 ))
 
         # Update layout
@@ -30,7 +32,7 @@ def generate_plots(df, output_dir):
             title=f"Distribution of {metal} Concentrations for Each Species",
             yaxis_title="Concentration",
             xaxis_title="Species",
-            showlegend=False
+            showlegend=True
         )
 
         # Save the figure
@@ -50,7 +52,15 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
     st.write("Data preview:", df.head())
+    
+    species_names = df['species'].unique()
+    color_map = {}
+
+    st.write("Select colors for each species:")
+    for species in species_names:
+        color = st.color_picker(f"Pick a color for {species}", "#000000")
+        color_map[species] = color
 
     output_dir = "plots"
-    generate_plots(df, output_dir)
+    generate_plots(df, output_dir, color_map)
     st.write(f"Plots have been saved in the `{output_dir}` directory and displayed below.")
