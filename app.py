@@ -1,14 +1,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import os
 
-# Function to generate and save violin plots
-def generate_plots(df, output_dir, color_map):
+# Function to generate violin plots and display them
+def generate_plots(df, color_map):
     data_columns = df.columns[1:]  # Assuming columns B to Y are the data columns
     species_names = df['species'].unique()
-
-    os.makedirs(output_dir, exist_ok=True)
 
     for metal in data_columns:
         fig = go.Figure()
@@ -35,10 +32,8 @@ def generate_plots(df, output_dir, color_map):
             showlegend=True
         )
 
-        # Save the figure
-        output_path = os.path.join(output_dir, f"{metal}_concentration_distribution.png")
-        fig.write_image(output_path)
-        st.image(output_path)
+        # Display the figure in Streamlit
+        st.plotly_chart(fig)
 
 # Streamlit interface
 st.title("Metal Concentration Distribution")
@@ -61,6 +56,4 @@ if uploaded_file is not None:
         color = st.color_picker(f"Pick a color for {species}", "#000000")
         color_map[species] = color
 
-    output_dir = "plots"
-    generate_plots(df, output_dir, color_map)
-    st.write(f"Plots have been saved in the `{output_dir}` directory and displayed below.")
+    generate_plots(df, color_map)
